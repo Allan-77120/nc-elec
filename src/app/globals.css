@@ -24,7 +24,6 @@
   --color-background: var(--color-background);
   --color-foreground: var(--color-foreground);
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
 * {
@@ -43,7 +42,22 @@ body {
   background-color: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0;
   line-height: 1.6;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+p,
+li {
+  font-weight: 400;
+  letter-spacing: 0;
 }
 
 a {
@@ -53,6 +67,8 @@ a {
 
 button {
   font-family: inherit;
+  font-weight: 500;
+  letter-spacing: 0;
 }
 
 img {
