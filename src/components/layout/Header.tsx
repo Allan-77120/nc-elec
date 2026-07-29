@@ -25,7 +25,7 @@ export function Header() {
       <Container className="flex h-30 items-center justify-between gap-6">
         <Link
           href="/"
-          className="flex shrink-0 items-center rounded focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
+          className="flex shrink-0 items-center rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-blue focus-visible:ring-offset-2"
           aria-label="Accueil NC'ELEC"
         >
           <Image
@@ -43,7 +43,7 @@ export function Header() {
             <Link
               key={link.label}
               href={link.href}
-              className="rounded border border-transparent px-3 py-2 text-xl font-medium text-black transition-colors duration-300 hover:!text-[#ceb477] focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 lg:px-4"
+              className="rounded border border-transparent px-3 py-2 text-xl font-medium text-black transition-colors duration-300 hover:!text-[#ceb477] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-blue focus-visible:ring-offset-2 lg:px-4"
             >
               {link.label}
             </Link>
@@ -53,7 +53,7 @@ export function Header() {
         <div className="hidden md:flex shrink-0 items-center">
           <Link
             href="/#contact"
-            className="inline-flex min-h-11 items-center justify-center rounded px-5 py-2.5 text-xl font-medium text-black transition-colors duration-300 hover:!text-[#ceb477] focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
+            className="inline-flex min-h-11 items-center justify-center rounded px-5 py-2.5 text-xl font-medium text-black transition-colors duration-300 hover:!text-[#ceb477] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-blue focus-visible:ring-offset-2"
           >
             Demander un devis
           </Link>
@@ -61,7 +61,7 @@ export function Header() {
 
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="md:hidden rounded p-2 text-dark-text transition-colors hover:bg-off-white focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
+          className="md:hidden rounded p-2 text-dark-text transition-colors hover:bg-off-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-blue focus-visible:ring-offset-2"
           aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
           aria-expanded={isMenuOpen}
         >
@@ -82,7 +82,7 @@ export function Header() {
                   key={link.label}
                   href={link.href}
                   onClick={closeMenu}
-                  className="rounded border border-transparent px-3 py-2 text-base font-medium text-black transition-colors duration-300 hover:!text-[#ceb477] focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
+                  className="rounded border border-transparent px-3 py-2 text-base font-medium text-black transition-colors duration-300 hover:!text-[#ceb477] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-blue focus-visible:ring-offset-2"
                 >
                   {link.label}
                 </Link>
@@ -93,7 +93,7 @@ export function Header() {
               <Link
                 href="/#contact"
                 onClick={closeMenu}
-                className="inline-flex min-h-12 w-full items-center justify-center rounded px-5 py-3 text-center text-sm font-medium text-black transition-colors duration-300 hover:!text-[#ceb477] focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
+                className="inline-flex min-h-12 w-full items-center justify-center rounded px-5 py-3 text-center text-sm font-medium text-black transition-colors duration-300 hover:!text-[#ceb477] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-blue focus-visible:ring-offset-2"
               >
                 Demander un devis
               </Link>

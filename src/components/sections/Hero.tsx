@@ -44,7 +44,7 @@ export function Hero() {
 
           <Link
             href="/#rendez-vous"
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded border-2 border-white px-8 py-3 text-white transition-all duration-300 hover:bg-white hover:text-dark-navy focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-dark-navy"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded border-2 border-white px-8 py-3 text-white transition-all duration-300 hover:bg-white hover:!text-dark-navy focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-dark-navy"
           >
             Prendre rendez-vous
             <CalendarDays className="h-5 w-5" />
