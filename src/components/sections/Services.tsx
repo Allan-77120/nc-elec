@@ -125,7 +125,7 @@ export function Services() {
 
         <div
           ref={cardsRef}
-          className="grid auto-rows-fr gap-6 md:grid-cols-2 lg:grid-cols-3"
+          className="-mx-6 flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-8 sm:px-8 md:mx-0 md:grid md:auto-rows-fr md:grid-cols-2 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3"
         >
           {services.map((service, index) => {
             const Icon = service.icon;
@@ -136,7 +136,7 @@ export function Services() {
                 style={{
                   transitionDelay: `${index * 260}ms`,
                 }}
-                className={`h-full transition-[opacity,translate] duration-[1400ms] ease-in-out motion-reduce:translate-y-0 motion-reduce:transition-none ${
+                className={`h-full w-[85%] shrink-0 snap-center transition-[opacity,translate] duration-[1400ms] ease-in-out motion-reduce:translate-y-0 motion-reduce:transition-none md:w-auto md:shrink ${
                   areCardsVisible
                     ? "translate-y-0 opacity-100"
                     : "translate-y-12 opacity-0"
