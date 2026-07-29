@@ -21,7 +21,7 @@ export function Header() {
   const closeMenu = () => setIsMenuOpen(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-light-border bg-white shadow-sm">
+    <header className="sticky top-0 z-50 border-b border-light-border bg-white/80 shadow-sm backdrop-blur-md">
       <Container className="flex h-30 items-center justify-between gap-6">
         <Link
           href="/"
