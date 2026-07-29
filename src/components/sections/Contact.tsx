@@ -50,7 +50,7 @@ export function Contact() {
     >
       <div className="mx-auto grid w-full max-w-7xl gap-12 px-6 sm:px-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16 lg:px-12">
         <div className="lg:py-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary-blue">
+          <p className="inline-block text-xl font-semibold uppercase tracking-[0.2em] text-primary-blue">
             Contact
           </p>
 
@@ -78,7 +78,7 @@ export function Contact() {
             </p>
 
             <a
-              href="tel:+33123456789"
+              href="tel:+33684828065"
               className="mt-2 inline-flex text-lg font-semibold text-dark-navy underline decoration-electric-yellow decoration-2 underline-offset-4 transition-colors duration-200 hover:text-primary-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-blue focus-visible:ring-offset-4"
             >
               06 84 82 80 65
