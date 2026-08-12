@@ -22,38 +22,62 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-light-border bg-white/80 shadow-sm backdrop-blur-md">
-      <Container className="flex h-30 items-center justify-between gap-6">
+      <Link
+        href="/"
+        className="absolute left-0 top-[calc(50%+10px)] hidden -translate-y-1/2 items-center rounded focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 lg:flex"
+        aria-label="Accueil NC'ELEC"
+      >
+        <Image
+          src="/logo/ncelec.png"
+          alt="NC'ELEC"
+          width={160}
+          height={160}
+          priority
+          className="h-40 w-40 object-contain"
+        />
+      </Link>
+
+      <Link
+        href="/#contact"
+        className="absolute right-6 top-1/2 hidden min-h-11 -translate-y-1/2 items-center justify-center rounded px-5 py-2.5 text-2xl font-medium text-black transition-colors duration-300 hover:!text-[#ceb477] focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 lg:inline-flex"
+      >
+        Demander un devis
+      </Link>
+
+      <Container className="relative flex h-30 items-center justify-between gap-6">
         <Link
           href="/"
-          className="flex shrink-0 items-center rounded focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
+          className="-ml-4 flex translate-y-[10px] shrink-0 items-center rounded focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 sm:-ml-6 lg:hidden"
           aria-label="Accueil NC'ELEC"
         >
           <Image
             src="/logo/ncelec.png"
             alt="NC'ELEC"
-            width={124}
-            height={40}
+            width={160}
+            height={160}
             priority
-            className="h-10 w-auto object-contain"
+            className="h-40 w-40 object-contain"
           />
         </Link>
 
-        <nav className="hidden md:flex flex-1 items-center justify-center gap-2 lg:gap-3">
+        <div className="hidden w-40 shrink-0 lg:block" aria-hidden="true" />
+
+        <nav className="hidden md:flex flex-1 items-center justify-center gap-4 lg:absolute lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 lg:gap-6">
           {navigationLinks.map((link) => (
             <Link
               key={link.label}
               href={link.href}
-              className="rounded border border-transparent px-3 py-2 text-xl font-medium text-black transition-colors duration-300 hover:!text-[#ceb477] focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 lg:px-4"
+              className="whitespace-nowrap rounded border border-transparent px-3 py-2 text-2xl font-medium text-black transition-colors duration-300 hover:!text-[#ceb477] focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 lg:px-4"
             >
               {link.label}
             </Link>
           ))}
         </nav>
 
-        <div className="hidden md:flex shrink-0 items-center">
+        <div className="hidden shrink-0 items-center md:flex lg:hidden">
           <Link
             href="/#contact"
-            className="inline-flex min-h-11 items-center justify-center rounded px-5 py-2.5 text-xl font-medium text-black transition-colors duration-300 hover:!text-[#ceb477] focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
+            className="inline-flex min-h-11 items-center justify-center rounded px-5 py-2.5 text-2xl font-medium text-black transition-colors duration-300 hover:!text-[#ceb477] focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
           >
             Demander un devis
           </Link>
@@ -82,7 +106,7 @@ export function Header() {
                   key={link.label}
                   href={link.href}
                   onClick={closeMenu}
-                  className="rounded border border-transparent px-3 py-2 text-base font-medium text-black transition-colors duration-300 hover:!text-[#ceb477] focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
+                  className="rounded border border-transparent px-3 py-2 text-lg font-medium text-black transition-colors duration-300 hover:!text-[#ceb477] focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
                 >
                   {link.label}
                 </Link>
@@ -93,7 +117,7 @@ export function Header() {
               <Link
                 href="/#contact"
                 onClick={closeMenu}
-                className="inline-flex min-h-12 w-full items-center justify-center rounded px-5 py-3 text-center text-sm font-medium text-black transition-colors duration-300 hover:!text-[#ceb477] focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
+                className="inline-flex min-h-12 w-full items-center justify-center rounded px-5 py-3 text-center text-lg font-medium text-black transition-colors duration-300 hover:!text-[#ceb477] focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
               >
                 Demander un devis
               </Link>
