@@ -58,7 +58,7 @@ export function Header() {
         Demander un devis
       </Link>
 
-      <Container className="relative flex h-30 items-center justify-between gap-6">
+      <Container className="relative flex h-28 items-center justify-between gap-6 md:h-30">
         <Link
           href="/"
           className="hidden translate-y-[10px] shrink-0 items-center rounded focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 md:-ml-6 md:flex lg:hidden"
