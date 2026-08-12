@@ -24,6 +24,20 @@ export function Header() {
     <header className="sticky top-0 z-50 border-b border-light-border bg-white/80 shadow-sm backdrop-blur-md">
       <Link
         href="/"
+        className="absolute left-1/2 top-[calc(50%+10px)] flex -translate-x-1/2 -translate-y-1/2 items-center rounded focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 md:hidden"
+        aria-label="Accueil NC'ELEC"
+      >
+        <Image
+          src="/logo/ncelec.png"
+          alt="NC'ELEC"
+          width={160}
+          height={160}
+          priority
+          className="h-40 w-40 object-contain"
+        />
+      </Link>
+      <Link
+        href="/"
         className="absolute left-0 top-[calc(50%+10px)] hidden -translate-y-1/2 items-center rounded focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 lg:flex"
         aria-label="Accueil NC'ELEC"
       >
@@ -47,7 +61,7 @@ export function Header() {
       <Container className="relative flex h-30 items-center justify-between gap-6">
         <Link
           href="/"
-          className="-ml-4 flex translate-y-[10px] shrink-0 items-center rounded focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 sm:-ml-6 lg:hidden"
+          className="hidden translate-y-[10px] shrink-0 items-center rounded focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 md:-ml-6 md:flex lg:hidden"
           aria-label="Accueil NC'ELEC"
         >
           <Image
