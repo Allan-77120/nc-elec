@@ -23,12 +23,28 @@ Le build télécharge la police Geist depuis Google Fonts et nécessite un accè
 
 ## Identité et contenus
 
+### Refonte du 2 novembre 2026
+
+Composition inspirée de [Lueurs](https://lueurs.net/), avec la palette NC’ELEC conservée et centralisée dans `globals.css`. Navigation latérale à partir de 1100 px, en-tête compact sur tablette et mobile, accueil encadré avec la photo existante et la Seine-et-Marne dans le titre, six prestations en blocs blancs avec pictogrammes et accents jaunes, et démarche en trois étapes sans portrait. Les blocs de prestations s’affichent sur trois colonnes sur ordinateur, deux sur tablette et une sur mobile ; leurs titres ouvrent une demande de devis avec le service présélectionné.
+
+Les réalisations reprennent une composition avec un encadré marine à rayures discrètes et une carte réunissant le descriptif et les photos. Les projets portent les titres « Rénovation d’un tableau électrique » et « Remplacement d’un coffret électrique ». Le lien « Voir l’autre réalisation » passe d’un projet à l’autre, au clavier ou au toucher, et conserve le focus. Chaque projet garde sa propre position avant/après lors des changements. Le glissement sur la photo commande exclusivement le comparateur. La transition respecte la réduction des animations. Les fichiers sources ne sont pas modifiés ; les images restent au ratio 3:4, avec une largeur limitée à 420 px sur ordinateur et 460 px sur mobile. Poignée à deux flèches, séparation fine, étiquettes et curseurs clavier visibles. Les fichiers `realisation-*.jpg` et `service-*.jpg` sont des fichiers de remplacement non exploitables, donc aucune galerie fictive n’a été ajoutée.
+
+Le formulaire conserve ses champs et son intégration serveur Resend, sans modification du destinataire, de l’expéditeur ni des secrets. Les liens des prestations présélectionnent le type de projet. Les animations d’apparition et de survol respectent la réduction des animations, y compris lorsque cette préférence change pendant la visite.
+
+La section 04 « Zone d’intervention » présente Coulommiers et ses alentours comme zone principale, et le reste de l’Île-de-France après étude au cas par cas. La carte [Leaflet](https://leafletjs.com/reference-1.9.4.html) utilise les tuiles OpenStreetMap avec attribution visible, commandes de zoom et repère bleu et jaune au centre de Coulommiers. Elle n’affiche ni rayon d’intervention inventé ni adresse d’entreprise. La carte se charge à l’approche de la section, adapte son rendu avec ResizeObserver et respecte la réduction des animations. Sur mobile, le défilement à un doigt reste celui de la page ; le pincement et les boutons contrôlent le zoom. Elle nécessite un accès réseau, sans clé API. Les coordonnées de contact renvoient vers la section et « Envoyer mon adresse » ouvre le formulaire existant. Les textes de couverture sont centralisés dans `src/data/site.ts`.
+
+Vérifications : ESLint, compilation de production/TypeScript et huit tests serveur réussis. Edge : 1440, 1100, 1024, 768, 390 et 320 px, absence de débordement horizontal, chargement des images, menu/ancres, comparateurs souris/clavier/tactile et défilement vertical. États du formulaire vérifiés avec réponses simulées (aucun nouvel e-mail réel envoyé). Captures et rapport dans `artifacts/preview/`.
+
+La carte ajoute Leaflet 1.9.4 et ses types TypeScript. Aucun nouveau paramètre requis pour cette refonte ; la configuration Resend et la réserve sur la livraison vers Outlook décrites ci-dessous restent applicables.
+
+Le menu est regroupé sous « Découvrir », « Votre projet » et « Nous suivre », avec pictogrammes, état actif marine et jaune et lien vers la zone d’intervention. Les mêmes groupes sont accessibles dans le menu mobile. Le profil Instagram fourni est `https://www.instagram.com/nc_elec/`, ouvert dans un nouvel onglet ; son URL est centralisée dans `src/data/site.ts`.
+
 - Couleurs conservées dans `src/app/globals.css` : marine #062747, bleu #0D4F8B, jaune #F4C430, blanc cassé #F8F8F6.
 - Le logo original est conservé ; sa boîte d’affichage masque les marges transparentes sans modifier ni déformer le fichier.
-- Les photos `avant.jpeg` et `apres.jpeg` restent celles du comparateur. `finale.jpeg`, déjà présent, illustre le tableau capoté dans le haut de page.
+- Les photos `avant.jpeg` et `apres.jpeg` restent celles du comparateur. La photo fournie de l’électricien en intervention est copiée sans modification dans `public/images/artisan-electricien.jpg` et illustre désormais l’accueil, avec un cadrage CSS adapté à l’ordinateur et au mobile. `finale.jpeg` reste disponible.
 - Le comparateur existant fonctionnait par glissement après appui, pas par simple survol. Ce comportement est conservé, avec déplacement relatif sans saut initial, glissement tactile horizontal, défilement vertical et contrôle clavier visible.
 - Les coordonnées publiques sont reprises de `src/data/site.ts` : téléphone 06 84 82 80 65 et e-mail ncelec@outlook.fr. La réception privée des formulaires est distincte.
-- Aucun témoignage, nombre de clients, label, certification ou délai d’intervention n’a été ajouté. La section Avis propose simplement de partager un retour.
+- Aucun témoignage, nombre de clients, label, certification ou délai d’intervention n’a été ajouté. La section Avis et le pied de page sont retirés à la demande de l’utilisateur.
 
 ## Formulaire et Resend
 

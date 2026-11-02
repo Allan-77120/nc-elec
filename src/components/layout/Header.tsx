@@ -2,10 +2,43 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { ArrowUpRight, Menu, X } from "lucide-react";
+import { House, LayoutGrid, MapPin, Menu, MessageCircle, Phone, Route, X, Zap } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { ContactLink } from "@/components/ui/ContactLink";
-import { navigation } from "@/data/navigation";
+import { navigation, navigationGroups } from "@/data/navigation";
+import { siteConfig } from "@/data/site";
+
+const navigationIcons = { home: House, bolt: Zap, grid: LayoutGrid, route: Route, map: MapPin, message: MessageCircle };
+
+function InstagramIcon() {
+  return <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+    <rect x="3" y="3" width="18" height="18" rx="5" />
+    <circle cx="12" cy="12" r="4" />
+    <circle cx="17.5" cy="6.5" r=".85" fill="currentColor" stroke="none" />
+  </svg>;
+}
+
+function NavigationItems({ active, idPrefix, onNavigate }: { active: string; idPrefix: string; onNavigate?: () => void }) {
+  return <>
+    {navigationGroups.map((group, index) => <div className="nav-group" key={group.label} role="group" aria-labelledby={idPrefix + "-group-" + index}>
+      <p className="nav-label" id={idPrefix + "-group-" + index}>{group.label}</p>
+      <ul className="nav-group-links">
+        {group.links.map(link => {
+          const Icon = navigationIcons[link.icon];
+          return <li key={link.href}><a className="nav-link" href={link.href} aria-current={active === link.href ? "location" : undefined} onClick={onNavigate}>
+            <span className="nav-icon"><Icon size={19} strokeWidth={1.7} aria-hidden="true" /></span><span className="nav-text">{link.label}</span>
+          </a></li>;
+        })}
+      </ul>
+    </div>)}
+    <div className="nav-group" role="group" aria-labelledby={idPrefix + "-social"}>
+      <p className="nav-label" id={idPrefix + "-social"}>Nous suivre</p>
+      <ul className="nav-group-links"><li><a className="nav-link" href={siteConfig.instagramUrl} target="_blank" rel="noopener noreferrer" onClick={onNavigate}>
+        <span className="nav-icon"><InstagramIcon /></span><span className="nav-text">Instagram<span className="sr-only"> — nouvel onglet</span></span>
+      </a></li></ul>
+    </div>
+  </>;
+}
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -27,10 +60,11 @@ export function Header() {
     };
     update();
     window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
     const media = window.matchMedia("(min-width: 1100px)");
     const resize = () => { if (media.matches) setIsMenuOpen(false); };
     media.addEventListener("change", resize);
-    return () => { cancelAnimationFrame(frame); window.removeEventListener("scroll", update); media.removeEventListener("change", resize); };
+    return () => { cancelAnimationFrame(frame); window.removeEventListener("scroll", update); window.removeEventListener("resize", update); media.removeEventListener("change", resize); };
   }, []);
 
   useEffect(() => {
@@ -52,20 +86,22 @@ export function Header() {
     <a href="#main" className="skip-link">Aller au contenu</a>
     <Container className="header-inner">
       <a href="#accueil" className="brand-link" aria-label="NC’ELEC — Accueil" onClick={() => setIsMenuOpen(false)}>
-        <span className="brand-crop"><Image src="/logo/ncelec.png" alt="NC’ELEC" width={176} height={176} loading="eager" className="brand-image" /></span>
-      </a>
+        <span className="brand-crop"><span className="brand-reveal"><Image src="/logo/ncelec.png" alt="NC’ELEC" width={176} height={176} loading="eager" className="brand-image" /></span></span>
+     </a>
+      <p className="brand-caption">Électricité générale<br />Seine-et-Marne</p>
       <nav aria-label="Navigation principale" className="desktop-nav">
-        {navigation.map((link) => <a key={link.href} href={link.href} aria-current={active === link.href ? "location" : undefined}>{link.label}</a>)}
+        <NavigationItems active={active} idPrefix="desktop-navigation" />
       </nav>
-      <ContactLink className="button button-primary header-cta">Demander un devis <ArrowUpRight size={17} aria-hidden="true" /></ContactLink>
+      <div className="sidebar-contact"><MapPin size={18} aria-hidden="true" /><p>À vos côtés à<br /><a href="#zone-intervention" className="sidebar-area-link"><strong>{siteConfig.city} et alentours</strong></a></p><a href="tel:+33684828065"><Phone size={15} aria-hidden="true" />{siteConfig.phone}</a></div>
+      <ContactLink className="button button-primary header-cta">Demander un devis</ContactLink>
       <button ref={toggleRef} className="menu-toggle" type="button" aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"} aria-expanded={isMenuOpen} aria-controls="mobile-navigation" onClick={() => setIsMenuOpen(!isMenuOpen)}>
         {isMenuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
       </button>
     </Container>
     <nav id="mobile-navigation" aria-label="Navigation mobile" className="mobile-nav" hidden={!isMenuOpen}>
       <Container>
-        {navigation.map((link) => <a key={link.href} href={link.href} aria-current={active === link.href ? "location" : undefined} onClick={() => setIsMenuOpen(false)}>{link.label}</a>)}
-        <ContactLink className="button button-primary" onClick={() => setIsMenuOpen(false)}>Demander un devis <ArrowUpRight size={18} aria-hidden="true" /></ContactLink>
+        <NavigationItems active={active} idPrefix="mobile-navigation" onNavigate={() => setIsMenuOpen(false)} />
+        <ContactLink className="button button-primary" onClick={() => setIsMenuOpen(false)}>Demander un devis</ContactLink>
       </Container>
     </nav>
   </header>;

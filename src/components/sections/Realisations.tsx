@@ -2,29 +2,48 @@
 
 import Image from "next/image";
 import { useId, useRef, useState, type PointerEvent } from "react";
-import { MoveHorizontal } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 
+const projects = [
+  { category: "Nos réalisations", title: "Rénovation d’un tableau électrique", description: "Reprise du câblage et réorganisation du tableau électrique. Vue après intervention, avant la pose du capot.", before: "/images/avant.jpeg", after: "/images/apres.jpeg", beforeAlt: "Tableau électrique avant la reprise du câblage", afterAlt: "Tableau électrique réorganisé et recâblé, avant la pose du capot" },
+  { category: "Nos réalisations", title: "Remplacement d’un coffret électrique", description: "Remplacement de l’ancien équipement par un nouveau coffret et ses protections électriques.", before: "/images/tableau-02-avant.png", after: "/images/tableau-02-apres.png", beforeAlt: "Ancien coffret électrique et câblage apparent avant intervention", afterAlt: "Nouveau coffret électrique équipé de ses protections" },
+];
+
 export function Realisations() {
-  return <section id="realisations" className="section-space realisations-section" aria-labelledby="realisations-title">
-    <Container>
+  const [current, setCurrent] = useState(0);
+  const carouselId = useId();
+  const changeProject = () => setCurrent((index) => (index + 1) % projects.length);
+
+  return <section id="realisations" className="section-space realisations-section" aria-labelledby="realisations-title" data-reveal>
+    <Container className="realisations-layout">
       <div className="realisations-heading">
-        <p className="eyebrow">Nos réalisations</p>
-        <h2 id="realisations-title">Deux tableaux différents,<br />le changement en images.</h2>
-        <p className="section-intro">Découvrez deux rénovations de tableaux électriques. Chaque comparateur présente un tableau différent, avant et après les travaux. Faites glisser les séparations pour observer chaque intervention.</p>
+        <p className="eyebrow">02 / Nos réalisations</p>
+        <h2 id="realisations-title">Voir ce qui change,<br /><em>avant de décider.</em></h2>
       </div>
-      <div className="comparison-layout">
-        <ImageComparison title="Tableau électrique n° 1" description="L’ancien équipement et le tableau après recâblage, avant la pose du capot." before="/images/avant.jpeg" after="/images/apres.jpeg" beforeAlt="Premier tableau électrique avant rénovation" afterAlt="Premier tableau après recâblage, avant la pose du capot" />
-        <ImageComparison title="Tableau électrique n° 2" description="Un autre tableau électrique, avant les travaux puis équipé de son nouveau coffret." before="/images/tableau-02-avant.png" after="/images/tableau-02-apres.png" beforeAlt="Deuxième tableau électrique avec son ancien équipement et câblage apparent" afterAlt="Deuxième tableau rénové avec son nouveau coffret et ses protections" />
+      <div className="project-carousel" role="region" aria-roledescription="carrousel" aria-labelledby="realisations-title">
+        <div className="project-card">
+          <div className="comparison-project-heading">
+            <p className="project-category">{projects[current].category} · {String(current + 1).padStart(2, "0")} / {String(projects.length).padStart(2, "0")}</p>
+            <h3>{projects[current].title}</h3>
+            <p>{projects[current].description}</p>
+            <button type="button" className="other-project" aria-controls={carouselId} onClick={changeProject}>Voir l’autre réalisation</button>
+          </div>
+        <div id={carouselId} className="carousel-slides">
+          {projects.map((project, index) => <div key={project.before} className="carousel-slide" role="group" aria-roledescription="diapositive" aria-label={(index + 1) + " sur " + projects.length + " : " + project.title} hidden={index !== current}>
+            <ImageComparison {...project} />
+          </div>)}
+        </div>
+        </div>
+        <p className="sr-only" role="status" aria-atomic="true">Réalisation {String(current + 1).padStart(2, "0")} / {String(projects.length).padStart(2, "0")} — {projects[current].title}</p>
+        <p id="comparison-instructions" className="sr-only">Au clavier : flèches gauche et droite, Début et Fin.</p>
       </div>
-      <p id="comparison-instructions" className="comparison-instructions"><MoveHorizontal size={18} aria-hidden="true" /> Faites glisser vers la droite ou la gauche pour comparer l’avant et l’après.</p>
     </Container>
   </section>;
 }
 
-function ImageComparison({ title, description, before, after, beforeAlt, afterAlt }: {
+function ImageComparison({ title, before, after, beforeAlt, afterAlt }: {
   title: string;
-  description: string;
   before: string;
   after: string;
   beforeAlt: string;
@@ -35,7 +54,6 @@ function ImageComparison({ title, description, before, after, beforeAlt, afterAl
   const drag = useRef<{ pointerId: number; x: number; position: number; width: number } | null>(null);
   const range = useRef<HTMLInputElement>(null);
   const id = useId();
-  const chevronGradientId = id + "-chevron-gradient";
   const end = (event: PointerEvent<HTMLDivElement>) => {
     if (drag.current?.pointerId !== event.pointerId) return;
     drag.current = null;
@@ -43,11 +61,7 @@ function ImageComparison({ title, description, before, after, beforeAlt, afterAl
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
   };
 
-  return <figure className="comparison-figure" aria-labelledby={id + "-title"}>
-        <div className="comparison-project-heading">
-          <h3 id={id + "-title"}>{title}</h3>
-          <p>{description}</p>
-        </div>
+  return <figure className="comparison-figure" aria-label={title + " : comparaison avant et après"}>
         <div className={"comparison-image" + (isDragging ? " is-dragging" : "")} role="group" aria-label={title + " : photos avant et après les travaux"}
           onPointerDown={(event) => {
             if (!event.isPrimary || event.button !== 0) return;
@@ -62,25 +76,19 @@ function ImageComparison({ title, description, before, after, beforeAlt, afterAl
             setPosition(Math.min(100, Math.max(0, next)));
           }}
           onPointerUp={end} onPointerCancel={end} onLostPointerCapture={() => { drag.current = null; setIsDragging(false); }}>
-          <Image src={before} alt={beforeAlt} fill sizes="(min-width: 1320px) 604px, (min-width: 768px) 46vw, 92vw" className="pointer-events-none object-contain" draggable={false} />
-          <Image src={after} alt={afterAlt} fill sizes="(min-width: 1320px) 604px, (min-width: 768px) 46vw, 92vw" className="pointer-events-none object-contain" style={{ clipPath: "inset(0 0 0 " + position + "%)" }} draggable={false} />
+          <Image src={before} alt={beforeAlt} fill sizes="(min-width: 768px) 420px, (min-width: 520px) 460px, 90vw" className="pointer-events-none object-contain" draggable={false} />
+          <Image src={after} alt={afterAlt} fill sizes="(min-width: 768px) 420px, (min-width: 520px) 460px, 90vw" className="pointer-events-none object-contain" style={{ clipPath: "inset(0 0 0 " + position + "%)" }} draggable={false} />
           <span className="comparison-label before" style={{ opacity: position > 15 ? 1 : 0 }}>Avant</span>
           <span className="comparison-label after" style={{ opacity: position < 85 ? 1 : 0 }}>Après</span>
           <span className="comparison-divider" style={{ left: position + "%" }} aria-hidden="true" />
           <span className="comparison-handle" style={{ left: "clamp(24px, " + position + "%, calc(100% - 24px))" }} aria-hidden="true">
-            <svg width="36" height="20" viewBox="0 0 36 20" fill="none">
-              <defs>
-                <linearGradient id={chevronGradientId} x1="6" y1="10" x2="30" y2="10" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="var(--color-primary-blue)" />
-                  <stop offset="1" stopColor="var(--color-electric-yellow)" />
-                </linearGradient>
-              </defs>
-              <path d="m12 4-6 6 6 6m12-12 6 6-6 6" stroke={"url(#" + chevronGradientId + ")"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <ChevronLeft size={18} /><ChevronRight size={18} />
           </span>
         </div>
-        <figcaption className="comparison-controls sr-only">
+        <figcaption className="comparison-controls">
+          <label htmlFor={id}>Avant</label>
           <input ref={range} id={id} type="range" min={0} max={100} step={1} value={position} onChange={(event) => setPosition(Number(event.target.value))} aria-label={title + " : part de la photo avant visible"} aria-describedby="comparison-instructions" aria-valuetext={Math.round(position) + " % avant, " + Math.round(100 - position) + " % après"} />
+          <span>Après</span>
         </figcaption>
       </figure>;
 }

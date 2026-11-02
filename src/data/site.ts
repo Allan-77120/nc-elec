@@ -7,4 +7,9 @@ export const siteConfig = {
   primaryColor: "#0D4F8B",
   secondaryColor: "#F4C430",
   region: "Seine-et-Marne",
+  city: "Coulommiers",
+  localArea: "Coulommiers et ses alentours",
+  extendedArea: "Île-de-France",
+  extendedAreaCondition: "Étude au cas par cas",
+  instagramUrl: "https://www.instagram.com/nc_elec/",
 };

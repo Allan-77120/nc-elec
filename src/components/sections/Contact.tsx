@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent, type InputHTMLAttributes } from "react";
-import { ArrowUpRight, CalendarDays, LoaderCircle, Mail, MapPin, Phone } from "lucide-react";
+import { CalendarDays, LoaderCircle, Mail, MapPin, Phone } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { projectTypes, validateContact, type ContactErrors, type RequestType } from "@/lib/contact";
 import { siteConfig } from "@/data/site";
@@ -84,16 +84,16 @@ export function Contact() {
     } finally { pending.current = false; }
   };
 
-  return <section id="contact" className="section-space contact-section" aria-labelledby="contact-title">
+  return <section id="contact" className="section-space contact-section" aria-labelledby="contact-title" data-reveal>
     <Container className="contact-layout">
       <div className="contact-copy">
-        <p className="eyebrow">Parlons de votre projet</p>
-        <h2 id="contact-title">Une question,<br />une idée, un besoin ?</h2>
+        <p className="eyebrow">05 / Parlons de votre projet</p>
+        <h2 id="contact-title">Une idée ?<br /><em>Parlons-en.</em></h2>
         <p className="section-intro">Décrivez-nous votre projet. Qu’il s’agisse d’un devis ou d’un premier échange, tout commence ici.</p>
         <div className="contact-details">
-          <a href="tel:+33684828065"><Phone size={22} aria-hidden="true" /><span><small>Par téléphone</small><strong>{siteConfig.phone}</strong></span><ArrowUpRight size={20} aria-hidden="true" /></a>
-          <a href={"mailto:" + siteConfig.email}><Mail size={22} aria-hidden="true" /><span><small>Par e-mail</small><strong>{siteConfig.email}</strong></span><ArrowUpRight size={20} aria-hidden="true" /></a>
-          <div><MapPin size={22} aria-hidden="true" /><span><small>Zone d’intervention</small><strong>{siteConfig.region}</strong></span></div>
+          <a href="tel:+33684828065"><Phone size={22} aria-hidden="true" /><span><small>Par téléphone</small><strong>{siteConfig.phone}</strong></span></a>
+          <a href={"mailto:" + siteConfig.email}><Mail size={22} aria-hidden="true" /><span><small>Par e-mail</small><strong>{siteConfig.email}</strong></span></a>
+          <a href="#zone-intervention"><MapPin size={22} aria-hidden="true" /><span><small>Zone d’intervention</small><strong>{siteConfig.localArea}</strong><small className="contact-extended-area">{siteConfig.extendedArea} : étude au cas par cas</small></span></a>
         </div>
         <p className="contact-note"><CalendarDays size={20} aria-hidden="true" /> Pour un rendez-vous, indiquez vos disponibilités. Le créneau sera convenu directement avec vous.</p>
       </div>
@@ -111,7 +111,7 @@ export function Contact() {
             <div className="full-field"><label htmlFor="projectType">Type de projet *</label><select id="projectType" name="projectType" required value={projectType} onChange={(event) => setProjectType(event.target.value)} aria-invalid={!!errors.projectType} aria-describedby={errors.projectType ? "projectType-error" : undefined}><option value="" disabled>Sélectionnez votre projet</option>{projectTypes.map((type) => <option key={type}>{type}</option>)}</select><FieldError id="projectType" error={errors.projectType} /></div>
             <div className="full-field"><label htmlFor="message">Description du projet *</label><textarea id="message" name="message" rows={5} minLength={10} maxLength={4000} required placeholder="Vos besoins, la commune du chantier et, si vous le souhaitez, vos disponibilités…" aria-invalid={!!errors.message} aria-describedby={errors.message ? "message-help message-error" : "message-help"} /><p id="message-help" className="field-help">Entre 10 et 4 000 caractères.</p><FieldError id="message" error={errors.message} /></div>
           </div>
-          <button className="button button-primary submit-button" type="submit" disabled={status === "submitting"}>{status === "submitting" ? <>Envoi en cours… <LoaderCircle className="loading-icon" size={19} aria-hidden="true" /></> : <>Envoyer ma demande <ArrowUpRight size={20} aria-hidden="true" /></>}</button>
+          <button className="button button-primary submit-button" type="submit" disabled={status === "submitting"}>{status === "submitting" ? <>Envoi en cours… <LoaderCircle className="loading-icon" size={19} aria-hidden="true" /></> : <>Envoyer ma demande </>}</button>
         </fieldset>
         <p className="privacy-note">Vos coordonnées sont utilisées pour répondre à votre demande.</p>
         {(status === "error" || status === "success") && <p ref={noticeRef} tabIndex={-1} role={status === "error" ? "alert" : "status"} className={"form-notice " + status}>{notice}</p>}

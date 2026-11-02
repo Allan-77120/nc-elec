@@ -1,4 +1,4 @@
-import { ArrowUpRight, Bolt, House, Lightbulb, ShieldCheck, Wrench, Settings } from "lucide-react";
+import { Bolt, House, Lightbulb, ShieldCheck, Wrench, Settings } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { ContactLink } from "@/components/ui/ContactLink";
 
@@ -12,20 +12,19 @@ const services = [
 ];
 
 export function Services() {
-  return <section id="services" className="section-space" aria-labelledby="services-title">
+  return <section id="services" className="section-space services-section" aria-labelledby="services-title" data-reveal>
     <Container>
       <div className="section-heading">
-        <div><p className="eyebrow">Nos services</p><h2 id="services-title">Une solution pour<br className="hidden sm:block" /> chaque projet électrique.</h2></div>
+        <div><p className="eyebrow">01 / Nos prestations</p><h2 id="services-title">À chaque projet,<br /><em>sa solution.</em></h2></div>
+        <p className="section-intro">De l’installation à l’entretien, un accompagnement pour vos besoins électriques.</p>
       </div>
       <div className="services-grid">
-        {services.map(({ title, description, icon: Icon }, index) => <article className="service-card" key={title}>
-          <div className="service-card-top"><span className="service-icon"><Icon size={25} strokeWidth={1.6} aria-hidden="true" /></span><span className="service-number" aria-hidden="true">0{index + 1}</span></div>
-          <h3>{title}</h3><p>{description}</p>
+        {services.map(({ title, type, description, icon: Icon }, index) => <article className="service-card" key={title}>
+          <div className="service-card-top"><span className="service-icon"><Icon size={25} strokeWidth={1.5} aria-hidden="true" /></span><span className="service-number" aria-hidden="true">0{index + 1}</span></div>
+          <div className="service-content"><h3><ContactLink projectType={type}>{title}</ContactLink></h3><p>{description}</p></div>
         </article>)}
       </div>
-      <div className="services-action">
-        <ContactLink className="button button-primary">Parlons de votre projet <ArrowUpRight size={18} aria-hidden="true" /></ContactLink>
-      </div>
+      <div className="services-action"><ContactLink className="button button-primary">Parlons de votre projet</ContactLink></div>
     </Container>
   </section>;
 }
