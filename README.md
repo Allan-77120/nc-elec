@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NC’ELEC
 
-## Getting Started
+Site vitrine en français : Next.js 16.2, React 19, TypeScript, Tailwind CSS 4 et Resend. Les modifications restent locales ; aucune publication n’est effectuée par les scripts de vérification.
 
-First, run the development server:
+## Développement
 
-```bash
-npm run dev
-# or
+Dans PowerShell :
+
+```powershell
+cd "C:\Users\Allan\Documents\nc'elec"
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ouvrir http://localhost:3000 (ou le port annoncé par Next.js).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```powershell
+yarn lint
+yarn test
+yarn build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Le build télécharge la police Geist depuis Google Fonts et nécessite un accès réseau. Les tests serveur simulent Resend et n’envoient aucun e-mail.
 
-## Learn More
+## Identité et contenus
 
-To learn more about Next.js, take a look at the following resources:
+- Couleurs conservées dans `src/app/globals.css` : marine #062747, bleu #0D4F8B, jaune #F4C430, blanc cassé #F8F8F6.
+- Le logo original est conservé ; sa boîte d’affichage masque les marges transparentes sans modifier ni déformer le fichier.
+- Les photos `avant.jpeg` et `apres.jpeg` restent celles du comparateur. `finale.jpeg`, déjà présent, illustre le tableau capoté dans le haut de page.
+- Le comparateur existant fonctionnait par glissement après appui, pas par simple survol. Ce comportement est conservé, avec déplacement relatif sans saut initial, glissement tactile horizontal, défilement vertical et contrôle clavier visible.
+- Les coordonnées publiques sont reprises de `src/data/site.ts` : téléphone 06 84 82 80 65 et e-mail ncelec@outlook.fr. La réception privée des formulaires est distincte.
+- Aucun témoignage, nombre de clients, label, certification ou délai d’intervention n’a été ajouté. La section Avis propose simplement de partager un retour.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Formulaire et Resend
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+La route `src/app/api/contact/route.ts` envoie uniquement côté serveur. La clé ne doit jamais porter un préfixe `NEXT_PUBLIC_`.
 
-## Deploy on Vercel
+Configurer `.env.local` à la racine (fichier ignoré par Git), avec les variables suivantes. La clé existante a été conservée sans être affichée :
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```dotenv
+RESEND_API_KEY=<votre clé privée, à saisir uniquement dans ce fichier>
+CONTACT_EMAIL=ncelec@outlook.fr
+CONTACT_FROM_EMAIL="NC'ELEC <onboarding@resend.dev>"
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Redémarrer `yarn dev` après modification si les nouvelles valeurs ne sont pas prises en compte. Ne jamais transmettre la clé dans la conversation, les logs ou le dépôt.
+
+Le domaine `resend.dev` est un expéditeur de test : il ne permet l’envoi qu’à l’adresse associée au compte Resend. Pour utiliser un expéditeur de production, ajouter un domaine que vous possédez dans Resend, installer les enregistrements DNS demandés, attendre sa vérification, puis remplacer `CONTACT_FROM_EMAIL` par une adresse de ce domaine. Outlook reste le destinataire, jamais l’expéditeur Resend.
+
+La réception est désormais configurée vers `ncelec@outlook.fr`. Le test de livraison ci-dessous concernait l’ancienne adresse Gmail ; aucun envoi réel vers Outlook n’a encore été vérifié. Tant que l’expéditeur reste `onboarding@resend.dev`, Outlook doit être l’adresse associée au compte Resend pour être autorisée comme destinataire de test.
+
+Documentation officielle consultée :
+- [Restriction du domaine de test](https://resend.com/docs/knowledge-base/403-error-resend-dev-domain)
+- [Domaines vérifiés](https://resend.com/docs/dashboard/domains/introduction)
+- [Envoi et Reply-To](https://resend.com/docs/api-reference/emails/send-email)
+- [Lecture du statut de livraison](https://resend.com/docs/api-reference/emails/retrieve-email)
+
+Le formulaire préremplit devis/rendez-vous et le service choisi, valide les formats et longueurs côté navigateur et serveur, conserve la saisie en cas d’erreur et empêche les doubles clics. Une clé d’idempotence accompagne les nouvelles tentatives identiques auprès de Resend. Le succès exige un identifiant accepté par Resend ; il ne signifie ni arrivée certaine en boîte principale ni rendez-vous réservé.
+
+Protection simple : champ piège antispam, contrôle de l’origine lorsqu’elle est présente, taille du corps limitée à 24 Ko, maximum de 60 tentatives globales et de 3 envois par adresse sur 15 minutes. Les adresses de limitation sont hachées. La limitation est en mémoire par processus : elle se réinitialise au redémarrage et n’est pas partagée entre instances. Avant une exploitation sur plusieurs instances, la remplacer par un stockage partagé ou une limitation sur la plateforme d’hébergement.
+
+## Vérifications du 28 octobre 2026
+
+- Compilation de production, TypeScript et ESLint.
+- Huit tests : identifiants en contexte sécurisé et HTTP local, validation, spam, origine, taille, succès confirmé, pannes Resend, configuration absente, Reply-To, idempotence et limitations.
+- Navigateur Edge : largeurs 1440, 768, 390 et 320 px, zoom 100 %, images chargées, pas de débordement horizontal ni d’erreur console inattendue.
+- Navigation mobile, fermeture par Échap, destinations des boutons et décalage des ancres.
+- Comparateur à la souris, au clavier et au tactile, sans blocage du défilement vertical.
+- États de formulaire testés avec réponses simulées : erreur conservant les champs, succès, rendez-vous non réservé et prévention du double envoi.
+- Envoi réel distinct depuis le formulaire : HTTP 200, Resend `delivered`, tous les champs présents et Reply-To `client-fictif@example.com`.
+- Identifiant de l’e-mail réel : `01a18372-3fcb-79d2-adf4-7c002468aabb`.
+- Objet : « Nouvelle demande de rendez-vous — NC’ELEC », destinataire christoph.allan77120@gmail.com.
+- L’utilisateur a confirmé la réception dans la boîte principale.
+
+Les captures et rapports sont dans `artifacts/preview/` (ignorés par Git).
+
+Les vérifications visuelles utilisent Playwright installé séparément dans le dossier temporaire et Microsoft Edge installé sur Windows. Pour les relancer sur ce poste :
+
+```powershell
+npm install --prefix "$env:TEMP\nc-elec-qa" --no-save --package-lock=false playwright
+node scripts/qa-browser.cjs
+```
+
+Le script `scripts/test-contact-live.cjs` effectue un **véritable envoi** puis interroge Resend. Il doit être lancé explicitement uniquement lorsqu’un nouvel envoi réel est souhaité ; il n’appartient pas à `yarn test`.
+
+## Accès par le réseau local
+
+L’adresse de développement `http://192.168.1.34:3000` est autorisée explicitement dans `allowedDevOrigins`. Cela permet au navigateur de charger correctement le fonctionnement interactif du site en développement.
+
+Sur une adresse HTTP du réseau local, `crypto.randomUUID` n’est pas disponible. Le formulaire utilise alors `crypto.getRandomValues` pour générer un UUID v4. Le test `node scripts/qa-lan-contact.cjs` vérifie le chargement du formulaire et son envoi sur cette adresse, avec une réponse simulée et sans e-mail réel. Ce test passe après correction. Le nouvel envoi réel proposé après ce correctif n’a pas été autorisé ; le rapport de livraison précédent ne valide pas ce nouvel essai.
+
+Si l’adresse IP de l’ordinateur change, mettre à jour l’adresse autorisée dans `next.config.ts` et l’URL du test réseau local.

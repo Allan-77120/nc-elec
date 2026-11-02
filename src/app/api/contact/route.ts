@@ -1,109 +1,80 @@
+import { createHash } from "node:crypto";
 import { Resend } from "resend";
+import { validateContact } from "@/lib/contact";
 
-const projectTypes = new Set([
-  "Installation électrique",
-  "Dépannage",
-  "Rénovation",
-  "Mise aux normes",
-  "Éclairage",
-  "Autre",
-]);
-
-type ContactPayload = {
-  name?: unknown;
-  phone?: unknown;
-  email?: unknown;
-  projectType?: unknown;
-  message?: unknown;
-  website?: unknown;
-};
-
-function isText(value: unknown, maxLength: number) {
-  return (
-    typeof value === "string" &&
-    value.trim().length > 0 &&
-    value.trim().length <= maxLength
-  );
+export const runtime = "nodejs";
+const WINDOW_MS = 15 * 60 * 1000;
+// This simple limiter is process-local. Use a shared store before scaling to multiple instances.
+const buckets = new Map<string, { count: number; expires: number }>();
+function limited(key: string, maximum: number) {
+  const now = Date.now();
+  for (const [id, value] of buckets) if (value.expires <= now) buckets.delete(id);
+  const bucket = buckets.get(key) ?? { count: 0, expires: now + WINDOW_MS };
+  bucket.count += 1;
+  buckets.set(key, bucket);
+  return bucket.count > maximum;
+}
+function fail(error: string, status: number, headers?: HeadersInit) {
+  return Response.json({ error }, { status, headers });
 }
 
 export async function POST(request: Request) {
-  let payload: ContactPayload;
-
+  if (limited("all-requests", 60)) return fail("Trop de demandes. Réessayez dans 15 minutes ou appelez-nous.", 429, { "Retry-After": "900" });
+  if (!request.headers.get("content-type")?.toLowerCase().startsWith("application/json")) return fail("Format de requête invalide.", 415);
+  const origin = request.headers.get("origin");
+  if (origin) {
+    try {
+      if (new URL(origin).host !== request.headers.get("host")) return fail("Origine de la demande non autorisée.", 403);
+    } catch { return fail("Origine de la demande invalide.", 403); }
+  }
+  let payload: unknown;
   try {
-    payload = (await request.json()) as ContactPayload;
-  } catch {
-    return Response.json({ error: "Requête invalide." }, { status: 400 });
-  }
-
-  if (typeof payload.website === "string" && payload.website.length > 0) {
-    return Response.json({ success: true });
-  }
-
-  if (
-    !isText(payload.name, 100) ||
-    !isText(payload.phone, 30) ||
-    !isText(payload.email, 254) ||
-    !isText(payload.projectType, 100) ||
-    !isText(payload.message, 4000)
-  ) {
-    return Response.json(
-      { error: "Veuillez compléter correctement tous les champs." },
-      { status: 400 },
-    );
-  }
-
-  const name = (payload.name as string).trim();
-  const phone = (payload.phone as string).trim();
-  const email = (payload.email as string).trim().toLowerCase();
-  const projectType = (payload.projectType as string).trim();
-  const message = (payload.message as string).trim();
-
-  if (
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
-    !projectTypes.has(projectType)
-  ) {
-    return Response.json(
-      { error: "Adresse e-mail ou type de projet invalide." },
-      { status: 400 },
-    );
-  }
-
-  const apiKey = process.env.RESEND_API_KEY;
-  const recipient = process.env.CONTACT_EMAIL;
+    const reader = request.body?.getReader();
+    if (!reader) return fail("Requête vide.", 400);
+    const chunks: Uint8Array[] = [];
+    let length = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      length += value.length;
+      if (length > 24000) { await reader.cancel(); return fail("Votre demande est trop longue.", 413); }
+      chunks.push(value);
+    }
+    payload = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+  } catch { return fail("Requête invalide.", 400); }
+  const { data: contact, errors } = validateContact(payload);
+  if (!contact) return Response.json({ error: "Vérifiez les informations de votre demande.", errors }, { status: 400 });
   const sender = process.env.CONTACT_FROM_EMAIL;
-
-  if (!apiKey || !recipient || !sender) {
-    console.error("Missing contact email environment variables.");
-    return Response.json(
-      { error: "Le service d’envoi n’est pas encore configuré." },
-      { status: 503 },
-    );
+  const recipient = process.env.CONTACT_EMAIL;
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey || !recipient || !sender) return fail("L’envoi est momentanément indisponible. Contactez-nous par téléphone ou par e-mail.", 503);
+  const emailKey = createHash("sha256").update(contact.email).digest("hex");
+  if (limited("email:" + emailKey, 3)) return fail("Vous avez déjà envoyé plusieurs demandes. Réessayez dans 15 minutes ou appelez-nous.", 429, { "Retry-After": "900" });
+  try {
+    const resend = new Resend(apiKey);
+    const kind = contact.requestType === "rendez-vous" ? "rendez-vous" : "devis";
+    const { data, error } = await resend.emails.send({
+      from: sender,
+      to: recipient,
+      replyTo: contact.email,
+      subject: "Nouvelle demande de " + kind + " — NC’ELEC",
+      text: [
+        "NC’ELEC — Nouvelle demande de " + kind,
+        "", "Nature de la demande : " + kind,
+        "Nom : " + contact.name, "Téléphone : " + contact.phone,
+        "Adresse e-mail : " + contact.email, "Type de projet : " + contact.projectType,
+        "", "Description du projet :", contact.message,
+        "", kind === "rendez-vous" ? "Demande de rendez-vous uniquement : aucun créneau n’est réservé." : "",
+      ].join("\n"),
+    }, { idempotencyKey: "contact/" + contact.requestId });
+    if (error || !data?.id) {
+      // Only a diagnostic code: no visitor data, API key or provider response in logs.
+      console.error("Contact: Resend rejected the request.", error?.name ?? "missing_id");
+      return fail("L’envoi n’a pas été accepté. Vos informations sont conservées. Réessayez ou appelez-nous.", 502);
+    }
+    return Response.json({ success: true, status: "accepted", id: data.id });
+  } catch {
+    console.error("Contact: email service unavailable.");
+    return fail("Le service d’envoi est indisponible. Vos informations sont conservées. Réessayez ou appelez-nous.", 502);
   }
-
-  const resend = new Resend(apiKey);
-  const { error } = await resend.emails.send({
-    from: sender,
-    to: recipient,
-    replyTo: email,
-    subject: `Nouvelle demande de devis - ${projectType}`,
-    text: [
-      `Nom : ${name}`,
-      `Téléphone : ${phone}`,
-      `E-mail : ${email}`,
-      `Type de projet : ${projectType}`,
-      "",
-      "Message :",
-      message,
-    ].join("\n"),
-  });
-
-  if (error) {
-    console.error("Resend contact error:", error);
-    return Response.json(
-      { error: "L’envoi a échoué. Veuillez réessayer." },
-      { status: 502 },
-    );
-  }
-
-  return Response.json({ success: true });
 }

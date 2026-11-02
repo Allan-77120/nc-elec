@@ -1,212 +1,86 @@
 "use client";
 
 import Image from "next/image";
-import {
-  useCallback,
-  useId,
-  useRef,
-  useState,
-  type KeyboardEvent,
-  type PointerEvent,
-} from "react";
-
-const MIN_POSITION = 0;
-const MAX_POSITION = 100;
-const KEYBOARD_STEP = 2;
+import { useId, useRef, useState, type PointerEvent } from "react";
+import { MoveHorizontal } from "lucide-react";
+import { Container } from "@/components/ui/Container";
 
 export function Realisations() {
-  const comparisonRef = useRef<HTMLDivElement>(null);
-  const rangeLabelId = useId();
+  return <section id="realisations" className="section-space realisations-section" aria-labelledby="realisations-title">
+    <Container>
+      <div className="realisations-heading">
+        <p className="eyebrow">Nos réalisations</p>
+        <h2 id="realisations-title">Deux tableaux différents,<br />le changement en images.</h2>
+        <p className="section-intro">Découvrez deux rénovations de tableaux électriques. Chaque comparateur présente un tableau différent, avant et après les travaux. Faites glisser les séparations pour observer chaque intervention.</p>
+      </div>
+      <div className="comparison-layout">
+        <ImageComparison title="Tableau électrique n° 1" description="L’ancien équipement et le tableau après recâblage, avant la pose du capot." before="/images/avant.jpeg" after="/images/apres.jpeg" beforeAlt="Premier tableau électrique avant rénovation" afterAlt="Premier tableau après recâblage, avant la pose du capot" />
+        <ImageComparison title="Tableau électrique n° 2" description="Un autre tableau électrique, avant les travaux puis équipé de son nouveau coffret." before="/images/tableau-02-avant.png" after="/images/tableau-02-apres.png" beforeAlt="Deuxième tableau électrique avec son ancien équipement et câblage apparent" afterAlt="Deuxième tableau rénové avec son nouveau coffret et ses protections" />
+      </div>
+      <p id="comparison-instructions" className="comparison-instructions"><MoveHorizontal size={18} aria-hidden="true" /> Faites glisser vers la droite ou la gauche pour comparer l’avant et l’après.</p>
+    </Container>
+  </section>;
+}
 
+function ImageComparison({ title, description, before, after, beforeAlt, afterAlt }: {
+  title: string;
+  description: string;
+  before: string;
+  after: string;
+  beforeAlt: string;
+  afterAlt: string;
+}) {
   const [position, setPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
-
-  const updatePosition = useCallback((clientX: number) => {
-    const comparison = comparisonRef.current;
-
-    if (!comparison) return;
-
-    const bounds = comparison.getBoundingClientRect();
-    const nextPosition = ((clientX - bounds.left) / bounds.width) * 100;
-    const clampedPosition = Math.min(
-      MAX_POSITION,
-      Math.max(MIN_POSITION, nextPosition),
-    );
-
-    setPosition(clampedPosition);
-  }, []);
-
-  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    event.currentTarget.setPointerCapture(event.pointerId);
-
-    setIsDragging(true);
-    updatePosition(event.clientX);
-  };
-
-  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (!isDragging) return;
-
-    updatePosition(event.clientX);
-  };
-
-  const handlePointerEnd = (event: PointerEvent<HTMLDivElement>) => {
+  const drag = useRef<{ pointerId: number; x: number; position: number; width: number } | null>(null);
+  const range = useRef<HTMLInputElement>(null);
+  const id = useId();
+  const chevronGradientId = id + "-chevron-gradient";
+  const end = (event: PointerEvent<HTMLDivElement>) => {
+    if (drag.current?.pointerId !== event.pointerId) return;
+    drag.current = null;
     setIsDragging(false);
-
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
   };
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Home") {
-      event.preventDefault();
-      setPosition(MIN_POSITION);
-      return;
-    }
-
-    if (event.key === "End") {
-      event.preventDefault();
-      setPosition(MAX_POSITION);
-      return;
-    }
-
-    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
-      return;
-    }
-
-    event.preventDefault();
-
-    const direction = event.key === "ArrowRight" ? 1 : -1;
-
-    setPosition((currentPosition) =>
-      Math.min(
-        MAX_POSITION,
-        Math.max(
-          MIN_POSITION,
-          currentPosition + direction * KEYBOARD_STEP,
-        ),
-      ),
-    );
-  };
-
-  return (
-    <section
-      id="realisations"
-      className="bg-white py-20 sm:py-24 lg:py-32"
-    >
-      <div className="mx-auto w-full max-w-7xl px-6 sm:px-8 lg:px-12">
-        <div className="mb-12 max-w-2xl sm:mb-16">
-          <span className="mb-4 inline-block text-xl font-semibold uppercase tracking-[0.2em] text-primary-blue">
-            Nos réalisations
-          </span>
-
-          <h2 className="text-3xl font-medium leading-tight text-dark-navy sm:text-4xl lg:text-5xl">
-            Découvrez nos travaux avant et après intervention
-          </h2>
-
-          <p className="mt-6 text-base leading-7 text-dark-text/70 sm:text-lg">
-            Déplacez le curseur pour comparer l’installation avant les travaux
-            et le résultat final.
-          </p>
+  return <figure className="comparison-figure" aria-labelledby={id + "-title"}>
+        <div className="comparison-project-heading">
+          <h3 id={id + "-title"}>{title}</h3>
+          <p>{description}</p>
         </div>
-
-        <div
-          ref={comparisonRef}
-          role="group"
-          aria-label="Comparaison avant et après les travaux"
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerEnd}
-          onPointerCancel={handlePointerEnd}
-          className={`relative mx-auto aspect-[3/4] w-full max-w-2xl touch-none select-none overflow-hidden rounded-2xl bg-neutral-200 shadow-xl ${
-            isDragging ? "cursor-grabbing" : "cursor-ew-resize"
-          }`}
-        >
-          <Image
-            src="/images/avant.jpeg"
-            alt="Installation électrique avant les travaux"
-            fill
-            priority
-            sizes="(min-width: 768px) 672px, 100vw"
-            className="pointer-events-none object-contain"
-            draggable={false}
-          />
-
-          <Image
-            src="/images/apres.jpeg"
-            alt="Installation électrique après les travaux"
-            fill
-            priority
-            sizes="(min-width: 768px) 672px, 100vw"
-            className="pointer-events-none object-contain"
-            style={{
-              clipPath: `inset(0 0 0 ${position}%)`,
-            }}
-            draggable={false}
-          />
-
-          <span
-            className={`pointer-events-none absolute bottom-4 left-4 z-20 rounded bg-dark-navy/90 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-white shadow-sm transition-opacity duration-200 ${
-              position >= 18 ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            Avant
+        <div className={"comparison-image" + (isDragging ? " is-dragging" : "")} role="group" aria-label={title + " : photos avant et après les travaux"}
+          onPointerDown={(event) => {
+            if (!event.isPrimary || event.button !== 0) return;
+            drag.current = { pointerId: event.pointerId, x: event.clientX, position, width: event.currentTarget.getBoundingClientRect().width };
+            event.currentTarget.setPointerCapture(event.pointerId);
+            setIsDragging(true);
+            range.current?.focus({ preventScroll: true });
+          }}
+          onPointerMove={(event) => {
+            if (drag.current?.pointerId !== event.pointerId) return;
+            const next = drag.current.position + (event.clientX - drag.current.x) / drag.current.width * 100;
+            setPosition(Math.min(100, Math.max(0, next)));
+          }}
+          onPointerUp={end} onPointerCancel={end} onLostPointerCapture={() => { drag.current = null; setIsDragging(false); }}>
+          <Image src={before} alt={beforeAlt} fill sizes="(min-width: 1320px) 604px, (min-width: 768px) 46vw, 92vw" className="pointer-events-none object-contain" draggable={false} />
+          <Image src={after} alt={afterAlt} fill sizes="(min-width: 1320px) 604px, (min-width: 768px) 46vw, 92vw" className="pointer-events-none object-contain" style={{ clipPath: "inset(0 0 0 " + position + "%)" }} draggable={false} />
+          <span className="comparison-label before" style={{ opacity: position > 15 ? 1 : 0 }}>Avant</span>
+          <span className="comparison-label after" style={{ opacity: position < 85 ? 1 : 0 }}>Après</span>
+          <span className="comparison-divider" style={{ left: position + "%" }} aria-hidden="true" />
+          <span className="comparison-handle" style={{ left: "clamp(24px, " + position + "%, calc(100% - 24px))" }} aria-hidden="true">
+            <svg width="36" height="20" viewBox="0 0 36 20" fill="none">
+              <defs>
+                <linearGradient id={chevronGradientId} x1="6" y1="10" x2="30" y2="10" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="var(--color-primary-blue)" />
+                  <stop offset="1" stopColor="var(--color-electric-yellow)" />
+                </linearGradient>
+              </defs>
+              <path d="m12 4-6 6 6 6m12-12 6 6-6 6" stroke={"url(#" + chevronGradientId + ")"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </span>
-
-          <span
-            className={`pointer-events-none absolute bottom-4 right-4 z-20 rounded bg-primary-blue px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-white shadow-sm transition-opacity duration-200 ${
-              position <= 82 ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            Après
-          </span>
-
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 z-20 w-0.5 bg-electric-yellow"
-            style={{ left: `${position}%` }}
-          >
-            <div
-              className={`absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white/80 bg-electric-yellow text-dark-navy shadow-lg transition-[scale,box-shadow] duration-200 ${
-                isDragging ? "scale-110 shadow-xl" : "scale-100"
-              }`}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="m8 7-5 5 5 5" />
-                <path d="M3 12h18" />
-                <path d="m16 7 5 5-5 5" />
-              </svg>
-            </div>
-          </div>
-
-          <label id={rangeLabelId} className="sr-only">
-            Position du curseur de comparaison avant et après
-          </label>
-
-          <input
-            type="range"
-            min={MIN_POSITION}
-            max={MAX_POSITION}
-            step={1}
-            value={position}
-            onChange={(event) =>
-              setPosition(Number(event.currentTarget.value))
-            }
-            onKeyDown={handleKeyDown}
-            aria-labelledby={rangeLabelId}
-            aria-valuetext={`${Math.round(position)} % de l’image avant visible`}
-            className="sr-only"
-          />
         </div>
-      </div>
-    </section>
-  );
+        <figcaption className="comparison-controls sr-only">
+          <input ref={range} id={id} type="range" min={0} max={100} step={1} value={position} onChange={(event) => setPosition(Number(event.target.value))} aria-label={title + " : part de la photo avant visible"} aria-describedby="comparison-instructions" aria-valuetext={Math.round(position) + " % avant, " + Math.round(100 - position) + " % après"} />
+        </figcaption>
+      </figure>;
 }

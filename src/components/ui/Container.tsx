@@ -6,8 +6,8 @@ const Container = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
     <div
       ref={ref}
       className={cn(
-        "mx-auto max-w-7xl",
-        "px-4 sm:px-6 lg:px-8",
+        "mx-auto w-full max-w-[1320px]",
+        "px-5 sm:px-8 lg:px-10",
         className
       )}
       {...props}
